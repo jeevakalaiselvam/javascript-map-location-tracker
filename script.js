@@ -83,8 +83,6 @@ class App {
     //Load the map with a position defined in arguments
     _loadMap(position) {
         const { latitude, longitude } = position.coords;
-        console.log(latitude, longitude);
-        console.log(`https://www.google.co.in/maps/@${latitude},${longitude}`);
 
         //Creating a map with lat and lng with zoom level of 13
         this.#map = L.map("map").setView([latitude, longitude], 15);
@@ -165,9 +163,10 @@ class App {
         this.#workouts.push(workout);
 
         //Render workout on map as marker
-        this.renderWorkourMarker(workout);
+        this._renderWorkoutMarker(workout);
 
         //Render workout as list
+        this._renderWorkoutList(w);
 
         //Hide the form and clear the input field
         inputDistance.value =
@@ -177,7 +176,7 @@ class App {
                 "";
     }
 
-    renderWorkourMarker(workout) {
+    _renderWorkoutMarker(workout) {
         L.marker(workout.coords)
             .addTo(this.#map)
             .bindPopup(
@@ -191,6 +190,25 @@ class App {
             )
             .setPopupContent("workout.distance")
             .openPopup();
+    }
+
+    _renderWorkoutList(workout) {
+        const html = `
+        <li class="workout workout--${workout.type}" data-id="${workout.id}">
+          <h2 class="workout__title">Running on April 14</h2>
+          <div class="workout__details">
+            <span class="workout__icon">🏃‍♂️</span>
+            <span class="workout__value">${workout.distance}</span>
+            <span class="workout__unit">km</span>
+          </div>
+          <div class="workout__details">
+            <span class="workout__icon">⏱</span>
+            <span class="workout__value">${workout.duration}</span>
+            <span class="workout__unit">min</span>
+          </div>
+          
+        </li>
+        `;
     }
 }
 
