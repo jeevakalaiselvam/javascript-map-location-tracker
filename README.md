@@ -8,6 +8,6 @@ A simple application using javascript to track activities in map
 
 # Screenshots
 
-### Login Page
+### Application Main
 
 ![Screenshot](screens/screen1.png)
