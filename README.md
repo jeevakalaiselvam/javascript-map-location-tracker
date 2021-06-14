@@ -4,7 +4,7 @@ A simple application using javascript to track activities in map
 
 # Live Version
 
-[CHECK APPLICATION](https://jeevakalaiselvam.github.io/javascript-indianbank-simple/)
+[CHECK APPLICATION](https://jeevakalaiselvam.github.io/javascript-map-location-tracker/)
 
 # Screenshots
 
