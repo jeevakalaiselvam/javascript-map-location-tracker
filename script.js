@@ -8,7 +8,6 @@ class Workout {
         this.coords = coords;
         this.distance = distance;
         this.duration = duration;
-        this.calcPace();
     }
 
     _setDescription() {
@@ -16,11 +15,6 @@ class Workout {
         const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
         // prettier-ignore
         this.desciption = `${this.type[0].toUpperCase()}${this.type.slice(1)} on ${months[this.date.getMonth()]}`;
-    }
-
-    calcPace() {
-        this.pace = this.duration / this.distance;
-        return this.pace;
     }
 }
 
@@ -30,12 +24,14 @@ class Running extends Workout {
     constructor(coords, distance, duration, cadence) {
         super(coords, distance, duration);
         this.cadence = cadence;
+        this.calcPace();
         this._setDescription();
     }
 
-    calcSpeed() {
-        this.speed = this.distance / (this.duration / 60);
-        return this.speed;
+    calcPace() {
+        // min/km
+        this.pace = this.duration / this.distance;
+        return this.pace;
     }
 }
 
@@ -45,7 +41,14 @@ class Cycling extends Workout {
     constructor(coords, distance, duration, elevationGain) {
         super(coords, distance, duration);
         this.elevationGain = elevationGain;
+        this.calcSpeed();
         this._setDescription();
+    }
+
+    calcSpeed() {
+        // km/h
+        this.speed = this.distance / (this.duration / 60);
+        return this.speed;
     }
 }
 
@@ -64,6 +67,7 @@ class App {
     #map;
     #mapEvent;
     #workouts = [];
+    #mapZoomLevel = 15;
 
     constructor() {
         //Initiate the GeoLocation API
@@ -71,6 +75,12 @@ class App {
 
         //When user submits the form
         form.addEventListener("submit", this._newWorkout.bind(this));
+
+        //When user clicks on the map card, move to that position
+        containerWorkouts.addEventListener(
+            "click",
+            this._moveToPopup.bind(this)
+        );
     }
 
     //Get the current position when the app loads
@@ -89,8 +99,11 @@ class App {
     _loadMap(position) {
         const { latitude, longitude } = position.coords;
 
-        //Creating a map with lat and lng with zoom level of 13
-        this.#map = L.map("map").setView([latitude, longitude], 15);
+        //Creating a map with lat and lng with zoom level of 15
+        this.#map = L.map("map").setView(
+            [latitude, longitude],
+            this.#mapZoomLevel
+        );
 
         //Choose tile format and add attribution if needed
         L.tileLayer("https://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png", {
@@ -234,7 +247,7 @@ class App {
             html += `
             <div class="workout__details">
                 <span class="workout__icon">⚡️</span>
-                <span class="workout__value">${workout.pace.toFixed(1)}</span>
+                <span class="workout__value">${workout.pace}</span>
                 <span class="workout__unit">km/h</span>
             </div>
             <div class="workout__details">
@@ -251,7 +264,7 @@ class App {
             html += `
             <div class="workout__details">
                 <span class="workout__icon">⚡️</span>
-                <span class="workout__value">${workout.speed.toFixed(1)}</span>
+                <span class="workout__value">${workout.speed}</span>
                 <span class="workout__unit">km/h</span>
             </div>
             <div class="workout__details">
@@ -265,6 +278,24 @@ class App {
         }
 
         form.insertAdjacentHTML("afterend", html);
+    }
+
+    _moveToPopup(e) {
+        const workoutElement = e.target.closest(".workout");
+
+        if (!workoutElement) return;
+        const workout = this.#workouts.find(
+            (workout) => workout.id === workoutElement.dataset.id
+        );
+
+        console.log(workout);
+
+        this.#map.setView(workout.coords, this.#mapZoomLevel, {
+            animate: true,
+            pan: {
+                duration: 1,
+            },
+        });
     }
 }
 
