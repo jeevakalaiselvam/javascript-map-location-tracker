@@ -14,7 +14,7 @@ class Workout {
         // prettier-ignore
         const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
         // prettier-ignore
-        this.desciption = `${this.type[0].toUpperCase()}${this.type.slice(1)} on ${months[this.date.getMonth()]}`;
+        this.desciption = `${this.type[0].toUpperCase()}${this.type.slice(1)} on ${months[this.date.getMonth()]} ${this.date.getDate()}`;
     }
 }
 
@@ -72,6 +72,9 @@ class App {
     constructor() {
         //Initiate the GeoLocation API
         this._getPosition();
+
+        //Get data from local storage
+        this._getLocalStorage();
 
         //When user submits the form
         form.addEventListener("submit", this._newWorkout.bind(this));
@@ -190,6 +193,7 @@ class App {
 
             //Create new cycling workout
             workout = new Cycling([lat, lng], distance, duration, elevation);
+            console.log(workout);
         }
 
         //Add the workout to the list of workouts
@@ -202,6 +206,9 @@ class App {
         this._renderWorkoutList(workout);
 
         this._hideForm();
+
+        //Set local storage for all locations
+        this._setLocalStorage();
     }
 
     _renderWorkoutMarker(workout) {
@@ -296,6 +303,21 @@ class App {
                 duration: 1,
             },
         });
+    }
+
+    //Store all map locations to local storage
+    _setLocalStorage() {
+        localStorage.setItem("workouts", JSON.stringify(this.#workouts));
+    }
+
+    //Get all map locations from local storage
+    _getLocalStorage() {
+        const data = JSON.parse(localStorage.getItem("workouts"));
+
+        if (!data) return; //If nothing is in localstorage, exit without doing anything
+
+        this.#workouts = data;
+        this.#workouts.forEach((workout) => this._renderWorkoutList(workout));
     }
 }
 
