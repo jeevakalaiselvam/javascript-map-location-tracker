@@ -115,6 +115,11 @@ class App {
 
         //Add a marker with data when the point is clicked on the map
         this.#map.on("click", this._showForm.bind(this));
+
+        //Show marker for all objects in workouts list
+        this.#workouts.forEach((work) => {
+            this._renderWorkoutMarker(work);
+        });
     }
 
     //Show the form to the user when the map is ck
@@ -317,7 +322,9 @@ class App {
         if (!data) return; //If nothing is in localstorage, exit without doing anything
 
         this.#workouts = data;
-        this.#workouts.forEach((workout) => this._renderWorkoutList(workout));
+        this.#workouts.forEach((workout) => {
+            this._renderWorkoutList(workout);
+        });
     }
 }
 
