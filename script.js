@@ -54,6 +54,7 @@ class App {
     //Private properties
     #map;
     #mapEvent;
+    #workouts = [];
 
     constructor() {
         //Initiate the GeoLocation API
@@ -113,33 +114,51 @@ class App {
 
     _newWorkout(e) {
         const validInputs = (...inputs) =>
-            inputs.every((input) => !Number.isFinite(input));
+            inputs.every((input) => !Number.isFinite(input) && input > 0); //Check if inputs are numbers
+
+        const allPositive = (...inputs) => inputs.every((input) => input > 0); //Check if inputs are positive
+
+        //Prevent default behaviour of form
         e.preventDefault();
 
         //Get data from form
         const type = inputType.value;
         const distance = +inputDistance.value;
         const duration = +inputDuration.value;
+        const { lat, lng } = this.#mapEvent.latlng;
+        let workout;
 
         //If workout is running, Create running object
         if (type === "running") {
             const cadence = +inputCadence.value;
 
-            //Check if data is valid
-            if (!validInputs(distance, duration, cadence))
+            //Check if input provided is valid
+            if (
+                !validInputs(distance, duration, cadence) ||
+                !allPositive(distance, duration, cadence)
+            )
                 return alert("Input have to be positive number!");
+            //Create new running workout
+            workout = new Running([lat, lng], distance, duration, cadence);
         }
 
         //If workout is cycling, Create cycling object
         if (type === "cycling") {
             const elevation = +inputElevation.value;
 
-            //Check if data is valid
-            if (!validInputs(distance, duration, elevation))
+            //Check if input provided is valid
+            if (
+                !validInputs(distance, duration, elevation) ||
+                !allPositive(distance, duration)
+            )
                 return alert("Input have to be positive number!");
+
+            //Create new cycling workout
+            workout = new Running([lat, lng], distance, duration, cadence);
         }
 
-        //Add object to workout array
+        //Add the workout to the list of workouts
+        this.#workouts.push(workout);
 
         //Render workout on map as marker
         const { lat, lng } = this.#mapEvent.latlng;
